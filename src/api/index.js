@@ -33,9 +33,12 @@ const customFetch = async (url, { body, ...customConfig }) => {
         data: data.data,
         success: true,
       };
+    } else {
+      return {
+        message: data.message,
+        success: false,
+      };
     }
-
-    throw new Error(data.message);
   } catch (error) {
     return {
       error: error.message,
@@ -46,4 +49,11 @@ const customFetch = async (url, { body, ...customConfig }) => {
 
 export const getPosts = (page = 1, limit = 15) => {
   return customFetch(API_URLS.posts(page, limit), { method: 'GET' });
+};
+
+export const login = (email, password) => {
+  return customFetch(API_URLS.login(), {
+    method: 'POST',
+    body: { email, password },
+  });
 };

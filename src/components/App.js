@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { getPosts } from '../api';
 import { Loader, Navbar } from './index';
 import { Home, Login } from '../pages';
-
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
 const Page404 = () => {
