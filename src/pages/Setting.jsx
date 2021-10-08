@@ -13,21 +13,62 @@ const Setting = () => {
   const [savingProfile, setSavingProfile] = useState(false);
   const { addToast } = useToasts();
 
-  const updateProfile = () => {
+  const clearForm = () => {
+    setPassword('');
+    setConfirmPassword('');
+  };
+
+  const updateProfile = async () => {
+    setSavingProfile(true);
+
+    let error = false;
+
+    if (!userName || !password || !confirmPassword) {
+      addToast('Please add all fields', {
+        appearance: 'error',
+        autoDismiss: true,
+      });
+      error = true;
+    }
+
     if (password !== confirmPassword) {
-      return addToast('Password does not match', {
+      addToast('Password does not match', {
+        appearance: 'error',
+        autoDismiss: true,
+      });
+
+      error = true;
+    }
+
+    if (error) {
+      return setSavingProfile(false);
+    }
+
+    const res = await auth.updateUser(
+      auth.user._id,
+      userName,
+      password,
+      confirmPassword
+    );
+
+    if (res.success) {
+      setEditMode(false);
+      setSavingProfile(false);
+
+      clearForm();
+
+      return addToast('User updated successfully', {
+        appearance: 'success',
+        autoDismiss: true,
+      });
+    } else {
+      addToast(res.message, {
         appearance: 'error',
         autoDismiss: true,
       });
     }
 
-    console.log({
-      userName,
-      password,
-      confirmPassword,
-    });
-
-    setEditMode(false);
+    setSavingProfile(false);
   };
 
   return (

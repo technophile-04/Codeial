@@ -6,6 +6,7 @@ const initialState = {
   login: () => {},
   logout: () => {},
   signUp: () => {},
+  updateUser: () => {},
   loading: true,
 };
 
