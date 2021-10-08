@@ -1,9 +1,31 @@
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import styles from '../styles/home.module.css';
-import { Comment } from '../components';
+import { Comment, Loader } from '../components';
+import { useEffect, useState } from 'react';
+import { getPosts } from '../api';
 
-const Home = ({ posts }) => {
+const Home = () => {
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPost = async () => {
+      const response = await getPosts();
+      setLoading(false);
+
+      if (response.success) {
+        setPosts(response.data.posts);
+      }
+    };
+
+    fetchPost();
+  }, []);
+
+  if (loading) {
+    return <Loader />;
+  }
+
   return (
     <div className={styles.postsList}>
       {posts.map((post, index) => (
