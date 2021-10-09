@@ -2,9 +2,18 @@ import { Loader, Navbar } from './index';
 import { Home, Login, Setting, SignUp } from '../pages';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { useAuth } from '../hooks';
+import { Redirect } from 'react-router-dom';
 
 const Page404 = () => {
   return <div>Page 404</div>;
+};
+
+const PrivateRoute = ({ children, ...rest }) => {
+  const auth = useAuth();
+
+  return (
+    <Route {...rest}>{auth.user ? children : <Redirect to="/login" />}</Route>
+  );
 };
 
 function App() {
@@ -29,10 +38,9 @@ function App() {
           <Route exact path="/register">
             <SignUp />
           </Route>
-          <Route exact path="/settings">
+          <PrivateRoute exact path="/settings">
             <Setting />
-          </Route>
-
+          </PrivateRoute>
           <Route>
             <Page404 />
           </Route>

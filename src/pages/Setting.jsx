@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Redirect } from 'react-router';
 import { useToasts } from 'react-toast-notifications';
 import { useAuth } from '../hooks';
 import styles from '../styles/settings.module.css';
@@ -6,7 +7,7 @@ import styles from '../styles/settings.module.css';
 const Setting = () => {
   const auth = useAuth();
 
-  const [editMode, setEditMode] = useState(true);
+  const [editMode, setEditMode] = useState(false);
   const [userName, setUserName] = useState(auth.user?.name);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -70,6 +71,10 @@ const Setting = () => {
 
     setSavingProfile(false);
   };
+
+  if (!auth.user) {
+    return <Redirect to="/" />;
+  }
 
   return (
     <div className={styles.settings}>
