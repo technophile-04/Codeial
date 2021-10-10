@@ -1,6 +1,6 @@
 import jwt from 'jwt-decode';
 import { useContext, useEffect, useState } from 'react';
-import { editUser, login as userLogin, register } from '../api';
+import { editUser, fetchFriends, login as userLogin, register } from '../api';
 import { AuthContext } from '../providers/AuthProvider';
 import {
   getItemFromLocalStorage,
@@ -18,15 +18,27 @@ export const useProvideAuth = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const userToken = getItemFromLocalStorage(LOCALSTORAGE_TOKEN_KEY);
+    (async () => {
+      const userToken = getItemFromLocalStorage(LOCALSTORAGE_TOKEN_KEY);
 
-    if (userToken) {
-      const user = jwt(userToken);
+      if (userToken) {
+        const user = jwt(userToken);
+        const res = await fetchFriends();
 
-      setUser(user);
-    }
+        let friends = [];
+        if (res.success) {
+          friends = res.data.friends;
+        } else {
+          friends = [];
+        }
 
-    setLoading(false);
+        setUser({
+          ...user,
+          friends,
+        });
+      }
+      setLoading(false);
+    })();
   }, []);
 
   const login = async (email, password) => {
@@ -93,6 +105,15 @@ export const useProvideAuth = () => {
     }
   };
 
+  const updateUserFriends = (addFriend, friend) => {
+    if (addFriend) {
+      setUser({
+        ...user,
+        friends: [...user.friends, friend],
+      });
+    }
+  };
+
   return {
     user,
     loading,
@@ -100,5 +121,6 @@ export const useProvideAuth = () => {
     logout,
     signUp,
     updateUser,
+    updateUserFriends,
   };
 };

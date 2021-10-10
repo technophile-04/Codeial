@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import { fetchUserProfile } from '../api';
+import { addFriends, fetchUserProfile } from '../api';
 import { useToasts } from 'react-toast-notifications';
 import { useAuth } from '../hooks';
 import styles from '../styles/settings.module.css';
@@ -10,6 +10,7 @@ const UserProfile = () => {
   const auth = useAuth();
   const [user, setUser] = useState({});
   const [loading, setLoading] = useState(true);
+  const [requestInProgress, setRequestInProgress] = useState(false);
   const { userId } = useParams();
   const { addToast } = useToasts();
   const history = useHistory();
@@ -32,6 +33,27 @@ const UserProfile = () => {
       setLoading(false);
     })();
   }, [userId, history, addToast]);
+
+  const handleAddFriendClick = async () => {
+    setRequestInProgress(true);
+
+    const res = await addFriends(userId);
+
+    if (res.success) {
+      const { friendship } = res.data;
+
+      auth.updateUserFriends(true, friendship);
+
+      addToast('Friends added successfully', {
+        appearance: 'success',
+        autoDismiss: true,
+      });
+    } else {
+      addToast(res.message, { appearance: 'error', autoDismiss: true });
+    }
+
+    setRequestInProgress(false);
+  };
 
   const checkIfUserIsAFrnd = () => {
     const friends = auth.user.friends;
@@ -70,9 +92,20 @@ const UserProfile = () => {
 
       <div className={styles.btnGrp}>
         {checkIfUserIsAFrnd() ? (
-          <button className={`button  ${styles.saveBtn}`}>Remove friend</button>
+          <button
+            className={`button  ${styles.saveBtn}`}
+            disabled={requestInProgress}
+          >
+            {requestInProgress ? 'Removing friend' : 'Remove friend'}
+          </button>
         ) : (
-          <button className={`button  ${styles.saveBtn}`}>Add friend</button>
+          <button
+            className={`button  ${styles.saveBtn}`}
+            onClick={handleAddFriendClick}
+            disabled={requestInProgress}
+          >
+            {requestInProgress ? 'Adding friend' : 'Add friend'}
+          </button>
         )}
       </div>
     </div>
