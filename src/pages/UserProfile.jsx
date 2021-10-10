@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import { addFriends, fetchUserProfile } from '../api';
+import { addFriends, fetchUserProfile, removeFriends } from '../api';
 import { useToasts } from 'react-toast-notifications';
 import { useAuth } from '../hooks';
 import styles from '../styles/settings.module.css';
@@ -54,6 +54,28 @@ const UserProfile = () => {
 
     setRequestInProgress(false);
   };
+  const handleRemoveFriendClick = async () => {
+    setRequestInProgress(true);
+
+    const res = await removeFriends(userId);
+
+    if (res.success) {
+      const frienship = auth.user.friends.filter(
+        (friend) => friend.to_user._id === userId
+      );
+
+      auth.updateUserFriends(false, frienship[0]);
+
+      addToast('Friends removed successfully', {
+        appearance: 'success',
+        autoDismiss: true,
+      });
+    } else {
+      addToast(res.message, { appearance: 'error', autoDismiss: true });
+    }
+
+    setRequestInProgress(false);
+  };
 
   const checkIfUserIsAFrnd = () => {
     const friends = auth.user.friends;
@@ -94,6 +116,7 @@ const UserProfile = () => {
         {checkIfUserIsAFrnd() ? (
           <button
             className={`button  ${styles.saveBtn}`}
+            onClick={handleRemoveFriendClick}
             disabled={requestInProgress}
           >
             {requestInProgress ? 'Removing friend' : 'Remove friend'}
