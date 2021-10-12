@@ -1,7 +1,13 @@
 import jwt from 'jwt-decode';
 import { useContext, useEffect, useState } from 'react';
-import { editUser, fetchFriends, login as userLogin, register } from '../api';
-import { AuthContext } from '../providers/AuthProvider';
+import {
+  editUser,
+  fetchFriends,
+  getPosts,
+  login as userLogin,
+  register,
+} from '../api';
+import { AuthContext, PostContext } from '../providers';
 import {
   getItemFromLocalStorage,
   LOCALSTORAGE_TOKEN_KEY,
@@ -130,5 +136,56 @@ export const useProvideAuth = () => {
     signUp,
     updateUser,
     updateUserFriends,
+  };
+};
+
+export const usePosts = () => {
+  return useContext(PostContext);
+};
+
+export const useProvidePosts = () => {
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPost = async () => {
+      const response = await getPosts();
+      setLoading(false);
+
+      if (response.success) {
+        setPosts(response.data.posts);
+      }
+    };
+
+    fetchPost();
+  }, []);
+
+  const addPostToState = (post) => {
+    const newPosts = [post, ...posts];
+    setPosts(newPosts);
+  };
+
+  const addCommentToState = (postId, comment) => {
+    const newPosts = posts.map((post) => {
+      if (post._id === postId) {
+        const newPost = {
+          ...post,
+          comments: [comment, ...post.comments],
+        };
+
+        return newPost;
+      }
+
+      return post;
+    });
+
+    setPosts(newPosts);
+  };
+
+  return {
+    data: posts,
+    loading,
+    addPostToState,
+    addCommentToState,
   };
 };

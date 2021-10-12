@@ -2,31 +2,38 @@ import moment from 'moment';
 import PropTypes from 'prop-types';
 import styles from '../styles/home.module.css';
 import { Comment, CreatePost, Loader } from '../components';
-import { useEffect, useState } from 'react';
-import { getPosts } from '../api';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../hooks';
+import { useAuth, usePosts } from '../hooks';
 import FriendList from '../components/FriendList';
+import { useState } from 'react';
+import { createComment } from '../api';
+import { useToasts } from 'react-toast-notifications';
 
 const Home = () => {
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
   const auth = useAuth();
+  const posts = usePosts();
+  const [newComment, setNewComment] = useState('');
+  const { addToast } = useToasts();
 
-  useEffect(() => {
-    const fetchPost = async () => {
-      const response = await getPosts();
-      setLoading(false);
+  const handleEnter = async (e, postId) => {
+    if (e.key === 'Enter') {
+      // console.log({ postId, newComment });
+      const res = await createComment(postId, newComment);
+      // console.log('Res', res);
 
-      if (response.success) {
-        setPosts(response.data.posts);
+      if (res.success) {
+        addToast('Your comment was published!', {
+          appearance: 'success',
+          autoDismiss: true,
+        });
+        posts.addCommentToState(postId, res.data.comment);
+      } else {
+        addToast(res.message, { appearance: 'error', autoDismiss: true });
       }
-    };
+    }
+  };
 
-    fetchPost();
-  }, []);
-
-  if (loading) {
+  if (posts.loading) {
     return <Loader />;
   }
 
@@ -34,7 +41,7 @@ const Home = () => {
     <div className={styles.home}>
       <div className={styles.postsList}>
         <CreatePost />
-        {posts.map((post, index) => (
+        {posts.data.map((post, index) => (
           <div className={styles.postWrapper} key={`post-${index}`}>
             <div className={styles.postHeader}>
               <div className={styles.postAvatar}>
@@ -72,7 +79,11 @@ const Home = () => {
                 </div>
               </div>
               <div className={styles.postCommentBox}>
-                <input placeholder="Start typing a comment" />
+                <input
+                  placeholder="Start typing a comment"
+                  onChange={(e) => setNewComment(e.target.value)}
+                  onKeyDown={(e) => handleEnter(e, post._id)}
+                />
               </div>
               <div className={styles.postCommentsList}>
                 {post.comments.map((comment) => (
