@@ -3,13 +3,15 @@ import React, { useState } from 'react';
 import { Comment } from './';
 import { Link } from 'react-router-dom';
 import { useToasts } from 'react-toast-notifications';
-import { createComment } from '../api';
+import { createComment, toggleLike } from '../api';
 import { usePosts } from '../hooks';
 import styles from '../styles/home.module.css';
 
 const Post = ({ post }) => {
   const posts = usePosts();
   const [newComment, setNewComment] = useState('');
+  const [likes, setLikes] = useState(post.likes.length);
+  const [liked, setLiked] = useState(false);
   const { addToast } = useToasts();
 
   const handleEnter = async (e, postId) => {
@@ -19,6 +21,7 @@ const Post = ({ post }) => {
       // console.log('Res', res);
 
       if (res.success) {
+        setNewComment('');
         addToast('Your comment was published!', {
           appearance: 'success',
           autoDismiss: true,
@@ -27,6 +30,30 @@ const Post = ({ post }) => {
       } else {
         addToast(res.message, { appearance: 'error', autoDismiss: true });
       }
+    }
+  };
+
+  const handlePostLikeClick = async () => {
+    const res = await toggleLike(post._id, 'Post');
+
+    if (res.success) {
+      if (res.data.deleted) {
+        setLiked(false);
+        setLikes((prevLikes) => prevLikes - 1);
+        addToast('Like removed successfully!', {
+          appearance: 'success',
+          autoDismiss: true,
+        });
+      } else {
+        setLiked(true);
+        setLikes((prevLikes) => prevLikes + 1);
+        addToast('Like added successfully!', {
+          appearance: 'success',
+          autoDismiss: true,
+        });
+      }
+    } else {
+      addToast(res.message, { appearance: 'error', autoDismiss: true });
     }
   };
 
@@ -50,11 +77,17 @@ const Post = ({ post }) => {
         <div className={styles.postContent}>{post.content}</div>
         <div className={styles.postActions}>
           <div className={styles.postLike}>
-            <img
-              src="https://image.flaticon.com/icons/svg/1077/1077035.svg"
-              alt="likes-icon"
-            />
-            <span>{post.likes.length}</span>
+            <button onClick={handlePostLikeClick}>
+              <img
+                src={
+                  liked
+                    ? 'https://cdn-icons-png.flaticon.com/512/833/833472.png'
+                    : 'https://image.flaticon.com/icons/svg/1077/1077035.svg'
+                }
+                alt="likes-icon"
+              />
+            </button>
+            <span>{likes}</span>
           </div>
           <div className={styles.postCommentsIcon}>
             <img
