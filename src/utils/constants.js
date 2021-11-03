@@ -1,4 +1,4 @@
-const API_ROOT = 'http://codeial.codingninjas.com:8000/api/v2/';
+const API_ROOT = process.env.REACT_APP_API_URL;
 
 export const API_URLS = {
   login: () => `${API_ROOT}/users/login`,
