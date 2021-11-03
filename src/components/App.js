@@ -31,7 +31,6 @@ function App() {
           <Route exact path="/">
             <Home />
           </Route>
-
           <Route exact path="/login">
             <Login />
           </Route>
@@ -44,7 +43,6 @@ function App() {
           <PrivateRoute exact path="/user/:userId">
             <UserProfile />
           </PrivateRoute>
-
           <Route>
             <Page404 />
           </Route>

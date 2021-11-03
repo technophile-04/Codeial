@@ -1,3 +1,5 @@
+import { AccountCircle } from '@mui/icons-material';
+import { Button, IconButton } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { searchUser } from '../api';
@@ -79,11 +81,9 @@ const Navbar = () => {
         {auth.user && (
           <div className={styles.user}>
             <Link to="/settings">
-              <img
-                src="https://image.flaticon.com/icons/svg/2154/2154651.svg"
-                alt=""
-                className={styles.userDp}
-              />
+              <IconButton>
+                <AccountCircle />
+              </IconButton>
             </Link>
             <span>{auth.user.name}</span>
           </div>
@@ -94,7 +94,9 @@ const Navbar = () => {
             {auth.user ? (
               <>
                 <li>
-                  <button onClick={auth.logout}>Log out </button>
+                  <Button variant="contained" onClick={auth.logout}>
+                    Log out{' '}
+                  </Button>
                 </li>
               </>
             ) : (

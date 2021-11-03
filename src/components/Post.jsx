@@ -6,6 +6,8 @@ import { useToasts } from 'react-toast-notifications';
 import { createComment, toggleLike } from '../api';
 import { usePosts } from '../hooks';
 import styles from '../styles/home.module.css';
+import { Message, ThumbDownAlt, ThumbUpSharp } from '@mui/icons-material';
+import { IconButton } from '@mui/material';
 
 const Post = ({ post }) => {
   const posts = usePosts();
@@ -62,7 +64,7 @@ const Post = ({ post }) => {
       <div className={styles.postHeader}>
         <div className={styles.postAvatar}>
           <img
-            src="https://image.flaticon.com/icons/svg/2154/2154651.svg"
+            src="https://cdn-icons-png.flaticon.com/512/709/709722.png"
             alt="user-pic"
           />
           <div>
@@ -77,23 +79,16 @@ const Post = ({ post }) => {
         <div className={styles.postContent}>{post.content}</div>
         <div className={styles.postActions}>
           <div className={styles.postLike}>
-            <button onClick={handlePostLikeClick}>
-              <img
-                src={
-                  liked
-                    ? 'https://cdn-icons-png.flaticon.com/512/833/833472.png'
-                    : 'https://image.flaticon.com/icons/svg/1077/1077035.svg'
-                }
-                alt="likes-icon"
-              />
-            </button>
+            <IconButton onClick={handlePostLikeClick}>
+              {liked ? <ThumbDownAlt /> : <ThumbUpSharp />}
+            </IconButton>
             <span>{likes}</span>
           </div>
           <div className={styles.postCommentsIcon}>
-            <img
-              src="https://image.flaticon.com/icons/svg/1380/1380338.svg"
-              alt="comments-icon"
-            />
+            <IconButton>
+              {' '}
+              <Message />{' '}
+            </IconButton>
             <span>2</span>
           </div>
         </div>
